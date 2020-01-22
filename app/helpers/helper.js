@@ -30,7 +30,7 @@ let datavalidate = (req, res, next) => {
     next();
 }
 
-const comparePassword = (pw, user, cb) => {
+const comparePassword = async(pw, user, cb) => {
     const securityKey = process.env.SECRET_KEY;
     // eslint-disable-next-line
     // pw is the incoming password
@@ -55,29 +55,53 @@ const comparePassword = (pw, user, cb) => {
 };
 
 const generateToken = (user, expireInSec = null) => {
-    if (expireInSec == null) {
-        expireInSec = 60 * 60 * 24 * 356;
-    }
-    let token = jwt.sign({
-        "data": user.username,
-        "exp": Math.floor(Date.now() / 1000) + expireInSec
-    }, config.privateKey);
-    if (config.useRedis) {
-        redisClient.set(token, user, 'EX', expireInSec);
-
-    }
-    return token;
-}
-
-const validateToken = (token) => {
-
-    jwt.verify(token, config.privateKey, function(err, decoded) {
-        if (err) {
-            throw err;
+    return new Promise((resolve, reject) => {
+        if (expireInSec == null) {
+            expireInSec = 60 * 60 * 24 * 356;
         }
-
+        let token = jwt.sign({
+            "data": JSON.stringify(user),
+            "exp": Math.floor(Date.now() / 1000) + expireInSec
+        }, config.privateKey);
+        if (config.useRedis) {
+            redisClient.set(token, JSON.stringify(user), 'EX', expireInSec);
+        }
+        resolve(token);
     });
 
 }
 
+const validateToken = async(req, res, next) => {
+    let token = req.headers.authorization;
+    if (!token) {
+        res.send({ status: false, "message": "token required" });
+        res.end();
+    }
+    try {
+        if (config.useRedis) {
+            redisClient.get(token, function(err, user) {
+                if (err) {
+                    throw err;
+                }
+                user = JSON.parse(user);
+                req.user = user;
+                next();
+            });
+        } else {
+            jwt.verify(token, config.privateKey, function(err, user) {
+                if (err) {
+                    res.send({ status: false, "message": err.message });
+                    throw err;
+                }
+                user = JSON.parse(user);
+                req.user = user;
+                next();
+            });
+        }
+    } catch (err) {
+        res.send({ status: false, "message": err.message });
+        res.end();
+        throw err;
+    }
+}
 export { datavalidate, comparePassword, generateToken, validateToken };

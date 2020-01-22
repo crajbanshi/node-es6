@@ -2,7 +2,7 @@ import Joi from '@hapi/joi';
 import { datavalidate } from '../helpers';
 
 let getUserSchema = Joi.object().keys({
-    userid: Joi.string().alphanum().min(3).max(100).required()
+    userid: Joi.string().alphanum().min(3).max(100).optional()
 });
 
 let saveUserSchema = Joi.object().keys({

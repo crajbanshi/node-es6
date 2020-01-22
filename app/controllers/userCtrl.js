@@ -10,39 +10,34 @@ import {
 
 
 var getUser = (req, res, next) => {
-    let userid = req.body.userid;
-
+    let userid = req.body.userid || req.user._id;
     Users.findById(userid, (err, user) => {
         if (err) {
-            console.log(err);
             throw err;
         }
         var data = {
             status: true,
             data: { users: user }
         }
-
         res.send(data);
         res.end();
     });
 }
 
 var getUsers = (req, res, next) => {
-
-    Users
-        .find({}).limit(10).exec((err, users) => {
-            if (err) {
-                console.log(err);
-                throw err;
-            }
-            var data = {
-                status: true,
-                data: { users: users }
-            }
-            res.send(data);
-            res.end();
-
-        });
+    let offset = parseInt(req.query.start) || 0;
+    let limit = parseInt(req.query.limit) || 100;
+    Users.find({}).skip(offset).limit(limit).exec((err, users) => {
+        if (err) {
+            throw err;
+        }
+        var data = {
+            status: true,
+            data: { users: users }
+        }
+        res.send(data);
+        res.end();
+    });
 }
 
 var saveUser = async(req, res, next) => {
@@ -68,60 +63,45 @@ var saveUser = async(req, res, next) => {
     res.end();
 }
 
-var login = (req, res, next) => {
+var login = async(req, res, next) => {
     let username = req.body.username;
     let password = req.body.password;
 
     Users.findOne({ username: username }, (err, user) => {
         if (err) {
-            console.log(err);
             throw err;
         }
 
         comparePassword(password, user, function(err, isMatch) {
-            console.log("user", isMatch)
             if (!isMatch) {
                 throw "Password not matched";
             }
-
-            var token = generateToken(user, 60);
-
-            var data = {
-                status: true,
-                data: {
-                    "user": {
-                        fname: user.fname,
-                        lname: user.lname,
-                        email: user.email
-                    },
-                    "token": token
+            let userdata = {
+                _id: user._id,
+                email: user.email,
+                username: user.username
+            };
+            generateToken(userdata, 60 * 60).then((token) => {
+                var data = {
+                    status: true,
+                    data: {
+                        "user": {
+                            fname: user.fname,
+                            lname: user.lname,
+                            email: user.email,
+                            username: user.username
+                        },
+                        "token": token
+                    }
                 }
-            }
-            res.send(data);
-            res.end();
+                res.send(data);
+                res.end();
+            });
+
         });
     });
 }
 
-var authCheck = async(req, res, next) => {
-    let token = req.headers.authorization;
-    if (!token) {
-        res.send({ status: false, "message": "token required" });
-        res.end();
-    }
-    try {
-        jwt.verify(token, config.privateKey, function(err, decoded) {
-            if (err) {
-                res.send({ status: false, "message": err.message });
-                throw err;
-            }
-            next();
-        });
-    } catch (err) {
-        res.send({ status: false, "message": err.message });
-        res.end();
-        throw err;
-    }
-}
 
-export default { getUser, getUsers, saveUser, login, authCheck };
+
+export default { getUser, getUsers, saveUser, login };

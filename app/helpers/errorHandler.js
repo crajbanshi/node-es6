@@ -11,7 +11,12 @@ process.on('uncaughtException', (err, origin) => {
         err.message = "data is not valid";
         errorCode = 400;
     }
-    _request.res.status(errorCode).send({ error: err.message });
+    // try {
+    //     if (_request)
+    //         _request.res.status(errorCode).send({ error: err.message });
+    // } catch (err) {
+    //     console.log(err);
+    // }
 });
 
 var errorHandler = function(req, res) {
