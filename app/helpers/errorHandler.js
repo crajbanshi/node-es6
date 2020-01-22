@@ -13,6 +13,7 @@ process.on('uncaughtException', (err, origin) => {
         let message = err;
         err = {};
         err.message = message;
+        errorCode = 403;
     } else if (err.name == 'CastError') {
         err.message = "data is not valid";
         errorCode = 400;
