@@ -1,23 +1,30 @@
 import detectMocha from 'detect-mocha';
 import { logger, errorLoger } from '../logger'
+import { config } from '../../config';
 
-process.on('uncaughtException', (err, origin) => {
-    if (detectMocha()) {
-        return;
-    }
-    errorLoger.error('uncaughtException', err.message, err.stack);
-    let errorCode = 500;
-    if (err.name == 'CastError') {
-        err.message = "data is not valid";
-        errorCode = 400;
-    }
-    // try {
-    //     if (_request)
-    //         _request.res.status(errorCode).send({ error: err.message });
-    // } catch (err) {
-    //     console.log(err);
-    // }
-});
+if (config.env != 'dev')
+    process.on('uncaughtException', (err, origin) => {
+        if (detectMocha()) {
+            return;
+        }
+        errorLoger.error('uncaughtException', err.message, err.stack);
+        let errorCode = 500;
+        if (typeof err == 'string') {
+            let message = err;
+            err = {};
+            err.message = message;
+        } else if (err.name == 'CastError') {
+            err.message = "data is not valid";
+            errorCode = 400;
+        }
+
+        try {
+            if (_request)
+                _request.res.status(errorCode).send({ error: err.message });
+        } catch (err) {
+            console.log(err);
+        }
+    });
 
 var errorHandler = function(req, res) {
     errorLoger.error('unknown URL', req.originalUrl);

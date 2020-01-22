@@ -1,12 +1,8 @@
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 
-
 import { config, redisClient } from '../../config';
-
-import { logger, errorLoger } from '../logger'
-
-
+import { logger, errorLoger } from '../logger';
 
 let md5 = (text) =>
     crypto
@@ -82,6 +78,9 @@ const validateToken = async(req, res, next) => {
             redisClient.get(token, function(err, user) {
                 if (err) {
                     throw err;
+                }
+                if (!user) {
+                    throw "token expired";
                 }
                 user = JSON.parse(user);
                 req.user = user;

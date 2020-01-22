@@ -1,5 +1,6 @@
 import redis from 'redis';
 import config from './config';
+import { logger, errorLoger } from '../app/logger';
 
 /* Values are hard-coded for this example, it's usually best to bring these in via file or environment variable for production */
 var client = redis.createClient({
@@ -10,11 +11,11 @@ var client = redis.createClient({
 });
 
 client.on('connect', function() {
-    console.log('connected');
+    logger.info('Redis connected to ', config.redis.host);
 });
 
 client.on('error', function(error) {
-    console.log(error);
+    throw error;
 });
 
 export default client;

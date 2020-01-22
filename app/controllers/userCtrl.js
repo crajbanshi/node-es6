@@ -4,8 +4,7 @@ import { config, redisClient } from '../../config';
 import { Users } from '../models';
 import {
     comparePassword,
-    generateToken,
-    validateToken
+    generateToken
 } from '../helpers';
 
 

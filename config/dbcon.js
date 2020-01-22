@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import config from './config';
+import { logger, errorLoger } from '../app/logger';
 
 let host = config.db.mongodb.host;
 let port = config.db.mongodb.port;
@@ -24,7 +25,7 @@ db.on('error', function(err) {
 });
 
 db.once('open', function() {
-    console.log("Connection Successful!");
+    logger.info("DB Connection Successful!", config.db.mongodb.host);
 });
 
 export default db;
