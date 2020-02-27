@@ -1,3 +1,5 @@
 import userCtlr from './userCtrl';
 
-export { userCtlr };
+import rabbittestCtrl from './rabbittestCtrl';
+
+export { userCtlr, rabbittestCtrl };

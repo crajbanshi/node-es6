@@ -4,6 +4,7 @@
     "description": "Node js codebase",
     "main": "index.js",
     "type": "module",
+    "esm": "cjs",
     "events": {
         "restart": "npm run build",
         "start": "npm run build"
@@ -14,7 +15,7 @@
         "build": "babel . -d dist --ignore \"node_modules/*\" --ignore \"test/*\" --out-dir dist",
         "prestart-dev": "npm run build",
         "serve": "nodemon --watch app --watch config --watch view --watch index.js  --exec \"npm run build && babel-node dist/index.js\"",
-        "start": "nodemon --exec babel-node index.js",
+        "start": "nodemon --exec babel-node  index.js",
         "test": "mocha --require @babel/register \"test/**/*.js\" --timeout 30000 --exit"
     },
     "repository": {
@@ -29,6 +30,8 @@
     "license": "ISC",
     "dependencies": {
         "@hapi/joi": "^16.1.8",
+        "amqp": "^0.2.7",
+        "amqplib": "^0.5.5",
         "bluebird": "^3.7.1",
         "body-parser": "^1.19.0",
         "colors": "^1.4.0",
@@ -37,6 +40,7 @@
         "cors": "^2.8.5",
         "detect-mocha": "^0.1.0",
         "dotenv": "^8.1.0",
+        "esm": "^3.2.25",
         "express": "^4.17.1",
         "express-logger": "0.0.3",
         "helmet": "^3.15.1",

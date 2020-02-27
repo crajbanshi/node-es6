@@ -19,12 +19,12 @@ process.on('uncaughtException', (err, origin) => {
         errorCode = 400;
     }
 
-    try {
-        if (_request)
-            _request.res.status(errorCode).send({ error: err.message });
-    } catch (err) {
-        console.log(err);
-    }
+    // try {
+    //     if (_request)
+    //         _request.res.status(errorCode).send({ error: err.message });
+    // } catch (err) {
+    //     console.log(err);
+    // }
 });
 
 var errorHandler = function(req, res) {
