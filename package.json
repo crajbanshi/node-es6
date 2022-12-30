@@ -65,7 +65,7 @@
         "chai": "^4.2.0",
         "chai-http": "^4.3.0",
         "clean-dir": "^1.0.3",
-        "mocha": "^6.2.2",
+        "mocha": "^10.2.0",
         "watch": "^1.0.2"
     },
     "options": {
